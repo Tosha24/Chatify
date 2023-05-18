@@ -1,0 +1,3 @@
+Icon's purple: fuchsia-900
+Icon's Pink: rose-500
+Icon's half pink: pink-500 
