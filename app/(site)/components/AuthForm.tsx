@@ -1,11 +1,14 @@
 'use client';
-
-import { useCallback, useState } from 'react';
+import axios from "axios";
+import { signIn, useSession } from "next-auth/react";
+import { useCallback, useEffect, useState } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import Input from '@/app/components/inputs/Input';
 import Button from '@/app/components/Button';
 import AuthSocialButton from './AuthSocialButton';
 import { BsGithub, BsGoogle } from 'react-icons/bs';
+import { toast } from 'react-hot-toast';
 
 type Variant = 'LOGIN' | 'REGISTER';
 
@@ -26,13 +29,13 @@ const AuthForm = () => {
         register,
         handleSubmit,
         formState: {
-            errors
+            errors,
         }
     } = useForm<FieldValues>({
         defaultValues: {
             name: '',
             email: '',
-            password: '',
+            password: ''
         }
     });
 
@@ -40,7 +43,9 @@ const AuthForm = () => {
         setLoading(true);
         
         if(variant === 'REGISTER'){
-            // Axios Register
+            // here data is name, email and password. Also it is mapped to api/register. This function will send the details on Submit, as name, email and password input fields to the backend (by register/route.ts file)
+            axios.post('/api/register', data)
+            .catch(() => toast.error("Something went wrong!"))
         }
         
         if(variant === 'LOGIN'){
@@ -59,24 +64,29 @@ const AuthForm = () => {
                 <form className='space-y-6' 
                 onSubmit={handleSubmit(onSubmit)}>
                     {variant === 'REGISTER' && (
-                        <Input id="name"
+                        <Input id="name" disabled={isLoading} 
                          label="Name" 
-                         register={register} errors={errors} />
+                         register={register} errors={errors} 
+                         required />
                     )}
                     <Input id="email"
+                        disabled={isLoading}
                          label="Email Address"
                          type="email" 
-                         register={register} errors={errors} />
+                         register={register} errors={errors} 
+                         required />
                     <Input id="password"
+                        disabled={isLoading}
                          label="Password" 
                          type="password"
-                         register={register} errors={errors} />
+                         register={register} errors={errors} 
+                         required />
                     <div>
                         <Button
                         disabled={isLoading}
                         fullWidth
                         type="submit">
-                            {variant === 'LOGIN' ? 'Sign in' : 'Sign up'}
+                            {variant === 'LOGIN' ? 'Sign in' : 'Register'}
                         </Button>
                     </div>
                 </form>

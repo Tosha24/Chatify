@@ -1,5 +1,3 @@
-'use client';
-
 import clsx from 'clsx';
 
 interface ButtonProps{
@@ -13,13 +11,13 @@ interface ButtonProps{
 }
 
 const Button: React.FC<ButtonProps> = ({
-    type,
+    type = "button",
     fullWidth,
     children,
     onClick,
     secondary,
     danger,
-    disabled
+    disabled,
 }) => {
     return(
     <button
@@ -46,7 +44,7 @@ const Button: React.FC<ButtonProps> = ({
     )}>
         {children}
     </button>
-    )
+    );
 }
 
 export default Button;
