@@ -13,9 +13,18 @@ import { toast } from 'react-hot-toast';
 type Variant = 'LOGIN' | 'REGISTER';
 
 const AuthForm = () => {
+    const session = useSession();
+    const router = useRouter();
+
     const [variant, setVariant] = useState<Variant>('LOGIN');
 
     const [isLoading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if(session?.status === 'authenticated'){
+            router.push('/users');
+        }
+    }, [session?.status, router]);
     const toggleVariant = useCallback(() => {
         if(variant === 'LOGIN'){
             setVariant('REGISTER');
@@ -45,18 +54,44 @@ const AuthForm = () => {
         if(variant === 'REGISTER'){
             // here data is name, email and password. Also it is mapped to api/register. This function will send the details on Submit, as name, email and password input fields to the backend (by register/route.ts file)
             axios.post('/api/register', data)
+            .then(() => signIn('credentials', data))
             .catch(() => toast.error("Something went wrong!"))
+            .finally(() => setLoading(false))
         }
         
         if(variant === 'LOGIN'){
-            // Next Auth Signin
+            signIn('credentials', {
+                ...data,
+                redirect: false
+            })
+            .then((callback) => {
+                if(callback?.error){
+                    toast.error("Invalid credentials!");
+                }
+                
+                if(callback?.ok && !callback?.error){
+                    toast.success('Logged In!');
+                    router.push('/users');
+                }
+            })
+            .finally(() => setLoading(false));
         }
     }
 
     const socialAction = (action: string) => {
         setLoading(true);
 
-        // Next Auth Social Signin
+        signIn(action, { redirect: false })
+        .then((callback) => {
+            if(callback?.error){
+                toast.error("Invalid credentials!");
+            }
+            if(callback?.ok && !callback?.error){
+                toast.success('Logged In!!')
+            }
+        })
+        
+        .finally(() => setLoading(false));
     }
     return (
         <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
